@@ -29,7 +29,9 @@ function setColor(value){
     query.color = value;
 }
 
-
+function flipChart(){
+    
+}
 
 
 function exportSVG() {
