@@ -1,0 +1,4 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone
+81,ÖBB,https://www.oebb.at,Europe/Berlin,de,
+810003,Montafonerbahn AG,http://www.montafonerbahn.at,Europe/Berlin,de,
+810026,CAT - CityAirportTrain,http://www.cityairporttrain.at,Europe/Berlin,de,
