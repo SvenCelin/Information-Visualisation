@@ -47,12 +47,16 @@ function drawGraph(){
 
     var tick_positions = [];
     var dataset = [];
+    var dataset2 = [];
     for (i=0; i<stations.length;i++){
         var x_pt = (schedule[i][1] - 6) / 14 * stations.length;
         tick_positions.push(x_pt);
-        var datapt = [x_pt, schedule[i][1]];
-        dataset.push(datapt)
+        dataset.push([x_pt, schedule[i][1]])
+        dataset2.push([x_pt, schedule[i][1]+2])
     }
+    dataset2[2][1] = 12
+    dataset2[5][1] += 0.7
+
     console.log(tick_positions)
     var xlabels = stations;//['Wien Flughafen','Wien hbf','Graz hbf'];
     var x_axis = d3.axisBottom().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
@@ -100,15 +104,17 @@ function drawGraph(){
     .x(function(d) { return x(d[0]); }) // set the x values for the line generator
     .y(function(d) { return y(d[1]); });
 
-    // 9. Append the path, bind the data, and call the line generator 
-    svg.append("path")
-    .attr("stroke", "red")
-    .attr("fill", "none")
-    .attr("d", line(dataset)); // 11. Calls the line generator 
-
+    // 9. Append the path, bind the data, and call the line generator
+    var trips = [dataset, dataset2];
+    for (i=0; i<trips.length;i++){
+        svg.append("path")
+        .attr("stroke", "red")
+        .attr("fill", "none")
+        .attr("d", line(trips[i])); // 11. Calls the line generator 
+    }
     // dots
     svg.selectAll(".dot")
-    .data(dataset)
+    .data(dataset.concat(dataset2))
     .enter().append("circle") // Uses the enter().append() method
         .attr("class", "dot") // Assign a class for styling
         .attr("fill", "blue")
