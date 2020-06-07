@@ -51,8 +51,8 @@ function drawGraph(){
     for (i=0; i<stations.length;i++){
         var x_pt = (schedule[i][1] - 6) / 14 * stations.length;
         tick_positions.push(x_pt);
-        dataset.push([x_pt, schedule[i][1]])
-        dataset2.push([x_pt, schedule[i][1]+2])
+        dataset.push([x_pt, schedule[i][1], schedule[i][0]]) //append(x,y,stn name)
+        dataset2.push([x_pt, schedule[i][1]+2, schedule[i][0]])
     }
     dataset2[2][1] = 12
     dataset2[5][1] += 0.7
@@ -112,6 +112,13 @@ function drawGraph(){
         .attr("fill", "none")
         .attr("d", line(trips[i])); // 11. Calls the line generator 
     }
+
+    function floatToTime(num){
+        console.log(num)
+        console.log(moment().startOf('day').add(parseFloat(num), "hours").format("HH:mm"))
+        return " "+ moment().startOf('day').add(parseFloat(num), "hours").format("HH:mm");
+    }
+
     // dots
     svg.selectAll(".dot")
     .data(dataset.concat(dataset2))
@@ -121,10 +128,12 @@ function drawGraph(){
         .attr("cx", function(d) { return x(d[0]) })
         .attr("cy", function(d) { return y(d[1]) })
         .attr("r", 2)
-        // .on("mouseover", function(a, b) { 
-        //         console.log(a) 
-        //     this.attr('class', 'focus')
-        //     })
+        .append("svg:title")
+        .text(function(d) { return d[2] + floatToTime(d[1]); });
+
+        // .on("mouseover", function(d) { 
+        //     .text(function(d) { return d.name; })
+        // })
         // .on("mouseout", function() {  })
 
     // svgstring = getSVGString(svg.node());
