@@ -21,8 +21,8 @@ function drawLine(){
 // var margin = {top: 10, right: 40, bottom: 30, left: 30},
 // width = 450 - margin.left - margin.right,
 // height = 400 - margin.top - margin.bottom;
-var margin = {top: 150, right: 50, bottom: 150, left: 50},
-width = (window.innerWidth - margin.left - margin.right)/2, // Use the window's width 
+var margin = {top: 250, right: 150, bottom: 200, left: 150},
+width = (window.innerWidth - margin.left - margin.right), // Use the window's width 
 height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
 
 function tickSelector(i, labels){
