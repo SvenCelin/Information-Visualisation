@@ -127,17 +127,23 @@ function drawGraph(){
         .attr("fill", "blue")
         .attr("cx", function(d) { return x(d[0]) })
         .attr("cy", function(d) { return y(d[1]) })
-        .attr("r", 2)
-        .append("svg:title")
-        .text(function(d) { return d[2] + floatToTime(d[1]); });
+        .attr("r", 3)
 
-        // .on("mouseover", function(d) { 
-        //     .text(function(d) { return d.name; })
-        // })
-        // .on("mouseout", function() {  })
+        // tooltip on hover
+        .on('mouseover', function (d, i) {
+            let tooltip = d[2] + floatToTime(d[1]);
+            d3.text(tooltip);
+            d3.select(this).transition()
+                 .duration('50')
+                 .attr('opacity', '.5');
+       })     .on('mouseout', function (d, i) {
+            d3.select(this).transition()
+                 .duration('50')
+                 .attr('opacity', '1');
+       })
+       .append("svg:title")
+       .text(function(d) { return d[2] + floatToTime(d[1]); });
 
-    // svgstring = getSVGString(svg.node());
-    // console.log(svgstring);
     return svg;
 }
 
