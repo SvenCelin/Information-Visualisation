@@ -128,4 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-node_modules/
+
+stringCharter/string-charter-win32-x64/
+stringCharter/node_modules/
