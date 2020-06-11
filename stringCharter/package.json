@@ -4,7 +4,7 @@
   "description": "info vis",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron . --allow-file-access-from-files"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,6 @@
   "devDependencies": {
     "electron": "^9.0.3",
     "electron-packager": "^14.2.1"
-  }
+  },
+  "dependencies": {}
 }

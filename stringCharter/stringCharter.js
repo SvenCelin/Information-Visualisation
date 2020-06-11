@@ -162,7 +162,19 @@ function getSVGString(svgNode){
     return svgString;
 }
 
+var openFile = function(event) {
+    var input = event.target;
+    console.log(input.files[0]);
 
+    d3.csv(input.files[0].path).then(function(data) {
+        //GET ALL DATA FROM CSV HERE
+        console.log(data[0]);
+        console.log(data[1]);
+      });
+  };
+
+
+//for extracting CSS on SVG export
 function getSVGStringAlt( svgNode ) {
     svgNode.setAttribute('xlink', 'http://www.w3.org/1999/xlink');
 	var cssStyleText = getCSSStyles( svgNode );

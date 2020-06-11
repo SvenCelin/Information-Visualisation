@@ -12,19 +12,19 @@
     <link rel="stylesheet" href="css/styles.css?v=1.0">
 
     <!-- Load d3.js -->
-    <script src="https://d3js.org/d3.v4.js"></script>
-	
-	<!-- Load svg.js -->
-	<script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
-	<!-- Load FileSaver.js -->
-	<script src="js/file-saver/src/FileSaver.js"></script>
-	<!-- Load moment.js -->
-	<script src="js/moment-with-locales.js"></script>
-	
+    <script src="https://d3js.org/d3.v5.js"></script>
+
+    <!-- Load svg.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+    <!-- Load FileSaver.js -->
+    <script src="js/file-saver/src/FileSaver.js"></script>
+    <!-- Load moment.js -->
+    <script src="js/moment-with-locales.js"></script>
+
 </head>
 
 <body>
-    <script src="js/frontend.js"></script>
+    <script src="js/toolbarFilters.js"></script>
 
     <!-- include your tag cloud script here or move frontend into your function -->
 
@@ -35,44 +35,46 @@
 
     <div id="controlDiv">
 
-            <div class="dropdown">
-                <select class="dropdown-select" onchange="setDays(value)">
-                    <option value="Weekdays">Weekdays</option>
-                    <option value="Weekends">Weekends</option>
-                </select>
-            </div>
+        <span class="leftOrder">
+                Import CSV:
+            <input type='file' onchange='openFile(event)' accept=".csv">
+        </span>
 
-            <div class="dropdown">
-                <select class="dropdown-select" onchange="setDirection(value)">
-                    <option value="GrazVienna">Graz - Vienna</option>
-                    <option value="ViennaGraz">Vienna - Graz</option>
-                </select>
-            </div>
-
+        <div class="dropdown">
+            <select class="dropdown-select" onchange="setDirection(value)">
+                <option value="GrazVienna">Graz - Vienna</option>
+                <option value="ViennaGraz">Vienna - Graz</option>
+            </select>
+        </div>
+        </span>
+        <span class="leftOrder">
             Time from:
             <input type="number" min="0" max="24" value="0" onchange="setTimeFrom(this.value)">
-
+        </span>
+        <span class="leftOrder">
             Time to:
             <input type="number" min="0" max="24" value="24" onchange="setTimeTo(this.value)">
-
-            <button id="flipChart" onclick="flipChart()">Flip Chart</button>
-
+        </span>
+        <span class="leftOrder">
             Color pallete:
             <input type="color" value="#696969" onchange="setColor(this.value)">
-          
+        </span>
 
         <button id="generateButton" onclick="saveAsSVG(svg_string)">Export to SVG</button>
 
+
+
+
     </div>
-	
+
     <div id="contentDiv"></div>
-	
-	<!-- String chart goes here -->
-	<div id = "svgContainer">
-	<script src="stringCharter.js"></script>
-	<script> svg_string=drawGraph()</script>
-	</div>
-	
+
+    <!-- String chart goes here -->
+    <div id="svgContainer">
+        <script src="stringCharter.js"></script>
+        <script> svg_string = drawGraph()</script>
+    </div>
+
 </body>
 
 </html>
