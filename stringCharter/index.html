@@ -13,9 +13,6 @@
 
     <!-- Load d3.js -->
     <script src="https://d3js.org/d3.v5.js"></script>
-
-    <!-- Load svg.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
     <!-- Load FileSaver.js -->
     <script src="js/file-saver/src/FileSaver.js"></script>
     <!-- Load moment.js -->
@@ -57,22 +54,20 @@
         </span>
         <span class="leftOrder">
             Color pallete:
-            <input type="color" value="#696969" onchange="setColor(this.value)">
+            <input type="color" value="#696969" id="cp" onchange=changeColor(cp.value)>
         </span>
 
-        <button id="generateButton" onclick="saveAsSVG(svg_string)">Export to SVG</button>
-
+        <button id="generateButton" onclick="saveAsSVG(svg)">Export to SVG</button>
 
 
 
     </div>
 
-    <div id="contentDiv"></div>
-
+    <div id="contentDiv">
     <!-- String chart goes here -->
-    <div id="svgContainer">
+    <!-- <div id="svgContainer"> -->
         <script src="stringCharter.js"></script>
-        <script> svg_string = drawGraph()</script>
+        <script> svg= drawGraph(cp.value)</script>
     </div>
 
 </body>

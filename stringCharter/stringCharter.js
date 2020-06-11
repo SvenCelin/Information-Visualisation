@@ -21,19 +21,31 @@ function drawLine(){
 // var margin = {top: 10, right: 40, bottom: 30, left: 30},
 // width = 450 - margin.left - margin.right,
 // height = 400 - margin.top - margin.bottom;
-var margin = {top: 250, right: 150, bottom: 200, left: 150},
+var margin = {top: 150, right: 300, bottom: 250, left: 100}, // if margins/height/width not set correctly, export svg doesnt work well
 width = (window.innerWidth - margin.left - margin.right), // Use the window's width 
 height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
 
 function tickSelector(i, labels){
     return labes[i];
 }
-function drawGraph(){
+
+// var svg;
+function changeColor(line_colour){
+    d3.selectAll("path")
+    .filter(function(d, i) { return i > 3; })
+    .transition()
+    .duration(500)
+    .attr("stroke", line_colour)
+    .attr("fill", "none")
+}
+
+function drawGraph(line_colour){
+    // This function is called by the buttons on top of the plot
     var schedule = [["Flughafen Wien Bahnhof", 6],["Wien Hbf", 7],["Wien Meidling Bahnhof", 8.5],["Wr.Neustadt Hbf", 13],["Semmering Bahnhof", 15],["Murzzuschlag Bahnhof", 16.5],["Kapfenberg Bahnhof", 18.3],["Bruck/Mur Bahnhof", 19], ["Graz Hbf", 20]];
     var stations = ["Flughafen Wien Bahnhof","Wien Hbf","Wien Meidling Bahnhof","Wr.Neustadt Hbf","Semmering Bahnhof","Murzzuschlag Bahnhof","Kapfenberg Bahnhof","Bruck/Mur Bahnhof", "Graz Hbf"]
 
     // append the svg object to the body of the page
-    var svg = d3.select("#svgContainer")
+    var svg = d3.select("#contentDiv")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -60,6 +72,7 @@ function drawGraph(){
     console.log(tick_positions)
     var xlabels = stations;//['Wien Flughafen','Wien hbf','Graz hbf'];
     var x_axis = d3.axisBottom().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
+    // var x_axis_top = d3.axisTop().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
 
     svg.append('g')
     .attr("transform", "translate(0," + height + ")")
@@ -75,7 +88,7 @@ function drawGraph(){
     .selectAll("text")  
     .style("text-anchor", "end")
     .attr("dx", "-.88em")
-    .attr("dy", "-.5em")
+    .attr("dy", "-.5em") //1em
     .attr("transform", "rotate(90)");
 
 
@@ -108,7 +121,7 @@ function drawGraph(){
     var trips = [dataset, dataset2];
     for (i=0; i<trips.length;i++){
         svg.append("path")
-        .attr("stroke", "red")
+        .attr("stroke", line_colour)
         .attr("fill", "none")
         .attr("d", line(trips[i])); // 11. Calls the line generator 
     }
@@ -120,6 +133,7 @@ function drawGraph(){
     }
 
     // dots
+    var dot_size = 3.5;
     svg.selectAll(".dot")
     .data(dataset.concat(dataset2))
     .enter().append("circle") // Uses the enter().append() method
@@ -127,7 +141,7 @@ function drawGraph(){
         .attr("fill", "blue")
         .attr("cx", function(d) { return x(d[0]) })
         .attr("cy", function(d) { return y(d[1]) })
-        .attr("r", 3)
+        .attr("r", dot_size)
 
         // tooltip on hover
         .on('mouseover', function (d, i) {
@@ -135,11 +149,13 @@ function drawGraph(){
             d3.text(tooltip);
             d3.select(this).transition()
                  .duration('50')
-                 .attr('opacity', '.5');
+                 .attr('opacity', '.5')
+                 .attr('r', dot_size+2.5);
        })     .on('mouseout', function (d, i) {
             d3.select(this).transition()
                  .duration('50')
-                 .attr('opacity', '1');
+                 .attr('opacity', '1')
+                 .attr("r", dot_size);
        })
        .append("svg:title")
        .text(function(d) { return d[2] + floatToTime(d[1]); });
@@ -160,11 +176,10 @@ function getSVGString(svgNode){
     const xmlns = "http://www.w3.org/2000/xmlns/";
     const xlinkns = "http://www.w3.org/1999/xlink";
     const svgns = "http://www.w3.org/2000/svg";
-
     var svgString = svgNode.outerHTML; // svg
 
     //add name spaces.
-    svgString = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">" + svgString + "</svg>";
+    svgString = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" >" + svgString + "</svg>";
     return svgString;
 }
 
