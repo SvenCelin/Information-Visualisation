@@ -19,8 +19,8 @@ npm rebuild
 
 npm start
 
-  (if error: npm install --save-dev electron9
-  
+    (if error: npm install --save-dev electron)
+   
 npm install electron-packager -g
 
 electron-packager .
