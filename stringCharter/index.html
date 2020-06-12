@@ -53,8 +53,8 @@
             <input type="number" min="0" max="24" value="24" onchange="setTimeTo(this.value)">
         </span>
         <span class="leftOrder">
-            Color pallete:
-            <input type="color" value="#696969" id="cp" onchange=changeColor(cp.value)>
+            Line colour:
+            <input type="color" value="#696969" id="lc" onchange=changeColor(lc.value)>
         </span>
 
         <button id="generateButton" onclick="saveAsSVG(svg)">Export to SVG</button>
@@ -67,7 +67,7 @@
     <!-- String chart goes here -->
     <!-- <div id="svgContainer"> -->
         <script src="stringCharter.js"></script>
-        <script> svg= drawGraph(cp.value)</script>
+        <script> svg= drawGraph(lc.value)</script>
     </div>
 
 </body>

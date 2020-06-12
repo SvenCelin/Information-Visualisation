@@ -55,7 +55,7 @@ function drawGraph(line_colour){
     // X scale and Axis
     var x = d3.scaleLinear()
     .domain([0, stations.length])         // This is the min and the max of the data: 0 to 100 if percentages
-    .range([0, width]);       // This is the corresponding value I want in Pixel
+    .range([0, width]);       // This is the corresponding value I want in Pixels
 
     var tick_positions = [];
     var dataset = [];
@@ -69,7 +69,7 @@ function drawGraph(line_colour){
     dataset2[2][1] = 12
     dataset2[5][1] += 0.7
 
-    console.log(tick_positions)
+    // console.log(tick_positions)
     var xlabels = stations;//['Wien Flughafen','Wien hbf','Graz hbf'];
     var x_axis = d3.axisBottom().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
     // var x_axis_top = d3.axisTop().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
@@ -138,7 +138,7 @@ function drawGraph(line_colour){
     .data(dataset.concat(dataset2))
     .enter().append("circle") // Uses the enter().append() method
         .attr("class", "dot") // Assign a class for styling
-        .attr("fill", "blue")
+        .attr("fill", "black")
         .attr("cx", function(d) { return x(d[0]) })
         .attr("cy", function(d) { return y(d[1]) })
         .attr("r", dot_size)
@@ -149,7 +149,7 @@ function drawGraph(line_colour){
             d3.text(tooltip);
             d3.select(this).transition()
                  .duration('50')
-                 .attr('opacity', '.5')
+                 .attr('opacity', '.3')
                  .attr('r', dot_size+2.5);
        })     .on('mouseout', function (d, i) {
             d3.select(this).transition()
