@@ -44,20 +44,11 @@ function getLineColour(line_colour){
     console.log(line_colour)
 }
 
-function timeStringToFloat(time) {
-    var hoursMinutes = time.split(/[.:]/);
-    var hours = parseInt(hoursMinutes[0], 10);
-    var minutes = hoursMinutes[1] ? parseInt(hoursMinutes[1], 10) : 0;
-    return hours + minutes / 60;
-}
-
-function drawGraph(data){
-    // var data = [{"trip_id": "14","direction": "1", "Graz Hbf": "20:33:00", "Bruck/Mur Bahnhof": "19:58:00", "Kapfenberg Bahnhof": "19:52:00", "Murzzuschlag Bahnhof": "19:30:00", "Semmering Bahnhof": "19:15:00", "Wr.Neustadt Hbf": "18:32:00", "Wien Meidling Bahnhof": "18:05:00", "Wien Hbf": "17:58:00"}]
-
+function drawGraph(line_colour){
+    // console.log(data[0])
     // This function is called by the buttons on top of the plot
-    var stations = Object.keys(data[0])
-    stations.splice(0, 2) //remove trip_id and direction
-    console.log(stations)
+    var schedule = [["Flughafen Wien Bahnhof", 6],["Wien Hbf", 7],["Wien Meidling Bahnhof", 8.5],["Wr.Neustadt Hbf", 13],["Semmering Bahnhof", 15],["Murzzuschlag Bahnhof", 16.5],["Kapfenberg Bahnhof", 18.3],["Bruck/Mur Bahnhof", 19], ["Graz Hbf", 20]];
+    var stations = ["Flughafen Wien Bahnhof","Wien Hbf","Wien Meidling Bahnhof","Wr.Neustadt Hbf","Semmering Bahnhof","Murzzuschlag Bahnhof","Kapfenberg Bahnhof","Bruck/Mur Bahnhof", "Graz Hbf"]
 
     // append the svg object to the body of the page
     var svg = d3.select("#contentDiv")
@@ -74,28 +65,18 @@ function drawGraph(data){
 
     var tick_positions = [];
     var dataset = [];
-    var first_stn = timeStringToFloat(data[0][stations[0]])
-    var last_stn = timeStringToFloat(data[0][stations[stations.length - 1]])
-
-    // Generate ticks labels
-    // direction of trip
-    if (first_stn>last_stn){
-        stations = stations.reverse();
-        temp = first_stn
-        first_stn = last_stn
-        last_stn = temp
-    }
-
-    var station_positions = []
+    var dataset2 = [];
     for (i=0; i<stations.length;i++){
-        let stn_time = timeStringToFloat(data[0][stations[i]])
-        console.log(stn_time)
-        var x_pt = ((stn_time - first_stn) / (last_stn-first_stn)) * stations.length;
+        var x_pt = (schedule[i][1] - 6) / 14 * stations.length;
         tick_positions.push(x_pt);
-        station_positions.push(x_pt) //append(x position of station)
+        dataset.push([x_pt, schedule[i][1], schedule[i][0]]) //append(x,y,stn name)
+        dataset2.push([x_pt, schedule[i][1]+2, schedule[i][0]])
     }
+    dataset2[2][1] = 12
+    dataset2[5][1] += 0.7
 
-    var xlabels = stations;
+    // console.log(tick_positions)
+    var xlabels = stations;//['Wien Flughafen','Wien hbf','Graz hbf'];
     var x_axis = d3.axisBottom().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
     // var x_axis_top = d3.axisTop().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
 
@@ -132,27 +113,23 @@ function drawGraph(data){
     .call(y_axis_left);
 
 
-    // Actually plot trips
-    // Draw line with d3's line generator
+    // Draw line
+    
+    // 7. d3's line generator
+    // var stations = ["Flughafen Wien Bahnhof","Wien Hbf","Wien Meidling Bahnhof","Wr.Neustadt Hbf","Semmering Bahnhof","Murzzuschlag Bahnhof","Kapfenberg Bahnhof","Bruck/Mur Bahnhof"]
+    // var times = []
+    // var dataset = [["Flughafen Wien Bahnhof", 6],["Wien Hbf", 7],["Wien Meidling Bahnhof", 8.5],["Wr.Neustadt Hbf", 13],["Semmering Bahnhof", 15],["Murzzuschlag Bahnhof", 16.5],["Kapfenberg Bahnhof", 18.3],["Bruck/Mur Bahnhof", 19], ["Graz Hbf", 20]];
     var line = d3.line()
     .x(function(d) { return x(d[0]); }) // set the x values for the line generator
     .y(function(d) { return y(d[1]); });
 
     // 9. Append the path, bind the data, and call the line generator
-    var data_pts = []
-    for (i=0; i<data.length; i++){
-        trip = data[i]
-
-        for (j=0; j<stations.length;j++){
-            let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
-            console.log(point)
-            data_pts.push(point)
-        }
-
+    var trips = [dataset, dataset2];
+    for (i=0; i<trips.length;i++){
         svg.append("path")
         .attr("stroke", line_colour)
         .attr("fill", "none")
-        .attr("d", line(data_pts)); // 11. Calls the line generator 
+        .attr("d", line(trips[i])); // 11. Calls the line generator 
     }
 
     function floatToTime(num){
@@ -164,7 +141,7 @@ function drawGraph(data){
     // dots
     var dot_size = 3.5;
     svg.selectAll(".dot")
-    .data(data_pts)
+    .data(dataset.concat(dataset2))
     .enter().append("circle") // Uses the enter().append() method
         .attr("class", "dot") // Assign a class for styling
         .attr("fill", "black")
@@ -177,34 +154,27 @@ function drawGraph(data){
             let tooltip = d[2] + floatToTime(d[1]);
             d3.text(tooltip);
             d3.select(this).transition()
-                .duration('50')
-                .attr('opacity', '.3')
-                .attr('r', dot_size+2.5);
-    })     .on('mouseout', function (d, i) {
+                 .duration('50')
+                 .attr('opacity', '.3')
+                 .attr('r', dot_size+2.5);
+       })     .on('mouseout', function (d, i) {
             d3.select(this).transition()
-                .duration('50')
-                .attr('opacity', '1')
-                .attr("r", dot_size);
-    })
-    .append("svg:title")
-    .text(function(d) { return d[2] + floatToTime(d[1]); });
-    
+                 .duration('50')
+                 .attr('opacity', '1')
+                 .attr("r", dot_size);
+       })
+       .append("svg:title")
+       .text(function(d) { return d[2] + floatToTime(d[1]); });
 
     return svg;
 }
 
-var svg_data;
-function saveAsSVG() {
-    try{
-        var svgString = getSVGString(svg_data.node());
-        var svg_text = new Blob([svgString],
-            { type: "image/svg+xml;charset=utf-8" }); // type:"text/svg;charset=utf-8"
-        saveAs(svg_text, "test.svg");
-    } catch (e){
-        console.log(e)
-        alert("Please load a CSV file.");
-    }
 
+function saveAsSVG() {
+    var svgString = getSVGString(svg.node());
+    var svg_text = new Blob([svgString],
+        { type: "image/svg+xml;charset=utf-8" }); // type:"text/svg;charset=utf-8"
+    saveAs(svg_text, "test.svg");
 }
 
 // https://stackoverflow.com/questions/23218174/how-do-i-save-export-an-svg-file-after-creating-an-svg-with-d3-js-ie-safari-an
@@ -224,7 +194,7 @@ var openFile = function(event) {
     console.log(input.files[0]);
 
     d3.csv(input.files[0].path).then(function(data) {
-        svg_data = drawGraph(data)
+        drawGraph(data)
         // //GET ALL DATA FROM CSV HERE
         // console.log(data[0]);
         // console.log(data[1]);
