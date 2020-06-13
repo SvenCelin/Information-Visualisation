@@ -23,8 +23,8 @@ function drawLine(){
 // height = 400 - margin.top - margin.bottom;
 var margin = {top: 150, right: 200, bottom: 250, left: 200}, // if margins/height/width not set correctly, export svg doesnt work well
 width = window.innerWidth - margin.left - margin.right, // Use the window's width 
-height = 2400 - margin.top - margin.bottom; // Use the window's height
-var line_colour = "black"
+height = window.innerHeight*2 - margin.top - margin.bottom; // Use the window's height
+var line_colour = document.getElementById("lc").value
 
 function tickSelector(i, labels){
     return labels[i];
@@ -41,7 +41,6 @@ function changeLineColor(line_colour){
 }
 function getLineColour(line_colour){
     this.line_colour = line_colour
-    console.log(line_colour)
 }
 
 function timeStringToFloat(time) {
@@ -51,9 +50,17 @@ function timeStringToFloat(time) {
     return hours + minutes / 60;
 }
 
-function drawGraph(data){
-    // var data = [{"trip_id": "14","direction": "1", "Graz Hbf": "20:33:00", "Bruck/Mur Bahnhof": "19:58:00", "Kapfenberg Bahnhof": "19:52:00", "Murzzuschlag Bahnhof": "19:30:00", "Semmering Bahnhof": "19:15:00", "Wr.Neustadt Hbf": "18:32:00", "Wien Meidling Bahnhof": "18:05:00", "Wien Hbf": "17:58:00"}]
+function clearOldChart()
+{
+    d3.select("#stringcharter").remove();
+    document.getElementById("contentDiv").innerHTML = "";
+}
 
+function drawGraph(data){
+    clearOldChart()
+    var line_colour = document.getElementById("lc").value
+
+    // var data = [{"trip_id": "14","direction": "1", "Graz Hbf": "20:33:00", "Bruck/Mur Bahnhof": "19:58:00", "Kapfenberg Bahnhof": "19:52:00", "Murzzuschlag Bahnhof": "19:30:00", "Semmering Bahnhof": "19:15:00", "Wr.Neustadt Hbf": "18:32:00", "Wien Meidling Bahnhof": "18:05:00", "Wien Hbf": "17:58:00"}]
     // This function is called by the buttons on top of the plot
     var stations = Object.keys(data[0])
     stations.splice(0, 2) //remove trip_id and direction
@@ -65,7 +72,8 @@ function drawGraph(data){
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .attr("id", "stringcharter");
 
     // X scale and Axis
     var x = d3.scaleLinear()
@@ -74,8 +82,10 @@ function drawGraph(data){
 
     var tick_positions = [];
     var dataset = [];
+    console.log(data[0][stations[0]])
     var first_stn = timeStringToFloat(data[0][stations[0]])
     var last_stn = timeStringToFloat(data[0][stations[stations.length - 1]])
+
 
     // Generate ticks labels
     // direction of trip
@@ -120,7 +130,7 @@ function drawGraph(data){
     // Y scale and Axis
     var y = d3.scaleLinear()
     .domain([0, 24])         // This is the min and the max of the data: 0 to 100 if percentages
-    .range([height, 0]);       // This is the corresponding value I want in Pixel
+    .range([0, height]);       // This is the corresponding value I want in Pixel
 
     var y_axis_left = d3.axisLeft().scale(y).tickFormat(function (d) {return d + ":00";});
     var y_axis_right = d3.axisRight().scale(y).tickFormat(function (d) {return d + ":00";});
@@ -139,20 +149,24 @@ function drawGraph(data){
     .y(function(d) { return y(d[1]); });
 
     // 9. Append the path, bind the data, and call the line generator
+    // Add condition for direction here
     var data_pts = []
     for (i=0; i<data.length; i++){
         trip = data[i]
-
+        let line_pts = []
         for (j=0; j<stations.length;j++){
-            let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
-            console.log(point)
-            data_pts.push(point)
+            if (trip[stations[j]] != '-' && trip['direction']==1){
+                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
+                console.log(point)
+                line_pts.push(point)
+                data_pts.push(point)
+            }
         }
 
         svg.append("path")
         .attr("stroke", line_colour)
         .attr("fill", "none")
-        .attr("d", line(data_pts)); // 11. Calls the line generator 
+        .attr("d", line(line_pts)); // 11. Calls the line generator 
     }
 
     function floatToTime(num){
@@ -160,6 +174,22 @@ function drawGraph(data){
         // console.log(moment().startOf('day').add(parseFloat(num), "hours").format("HH:mm"))
         return " "+ moment().startOf('day').add(parseFloat(num), "hours").format("HH:mm");
     }
+
+    // draw gird lines
+    svg.selectAll("line.horizontalGrid").data(y.ticks(4)).enter()
+    .append("line")
+        .attr(
+        {
+            "class":"horizontalGrid",
+            "x1" : margin.right,
+            "x2" : width,
+            "y1" : function(d){ return y(d);},
+            "y2" : function(d){ return y(d);},
+            "fill" : "none",
+            "shape-rendering" : "crispEdges",
+            "stroke" : "black",
+            "stroke-width" : "1px"
+        });
 
     // dots
     var dot_size = 3.5;
@@ -189,7 +219,6 @@ function drawGraph(data){
     .append("svg:title")
     .text(function(d) { return d[2] + floatToTime(d[1]); });
     
-
     return svg;
 }
 

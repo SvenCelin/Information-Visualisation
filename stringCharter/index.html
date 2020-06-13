@@ -55,10 +55,10 @@
         </span>
         <span class="leftOrder">
             Line colour:
-            <input type="color" value="#696969" id="lc" onchange=changeLineColor(lc.value)>
+            <input type="color" value="#696969" id="lc" onchange="changeLineColor(lc.value)">
         </span>
 
-        <button id="generateButton" onclick="saveAsSVG(svg)">Export to SVG</button>
+        <button id="generateButton" onclick="saveAsSVG()">Export to SVG</button>
 
 
 
@@ -68,7 +68,7 @@
     <!-- String chart goes here -->
     <!-- <div id="svgContainer"> -->
         <script src="stringCharter.js"></script>
-        <script> svg= drawGraph(lc.value)</script>
+        <!-- <script> getLineColour(lc.value)</script> -->
     </div>
 
 </body>
