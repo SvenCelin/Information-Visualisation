@@ -141,7 +141,6 @@ function drawGraph(data){
     svg.append('g')
     .call(y_axis_left);
 
-
     // Actually plot trips
     // Draw line with d3's line generator
     var line = d3.line()
@@ -175,21 +174,21 @@ function drawGraph(data){
         return " "+ moment().startOf('day').add(parseFloat(num), "hours").format("HH:mm");
     }
 
-    // draw gird lines
-    svg.selectAll("line.horizontalGrid").data(y.ticks(4)).enter()
-    .append("line")
-        .attr(
-        {
-            "class":"horizontalGrid",
-            "x1" : margin.right,
-            "x2" : width,
-            "y1" : function(d){ return y(d);},
-            "y2" : function(d){ return y(d);},
-            "fill" : "none",
-            "shape-rendering" : "crispEdges",
-            "stroke" : "black",
-            "stroke-width" : "1px"
-        });
+    // // draw gird lines
+    // svg.selectAll("line.horizontalGrid").data(y.ticks(4)).enter()
+    // .append("line")
+    //     .attr(
+    //     {
+    //         "class":"horizontalGrid",
+    //         "x1" : margin.right,
+    //         "x2" : width,
+    //         "y1" : function(d){ return y(d);},
+    //         "y2" : function(d){ return y(d);},
+    //         "fill" : "none",
+    //         "shape-rendering" : "crispEdges",
+    //         "stroke" : "black",
+    //         "stroke-width" : "1px"
+    //     });
 
     // dots
     var dot_size = 3.5;
@@ -224,15 +223,16 @@ function drawGraph(data){
 
 var svg_data;
 function saveAsSVG() {
-    try{
-        var svgString = getSVGString(svg_data.node());
-        var svg_text = new Blob([svgString],
-            { type: "image/svg+xml;charset=utf-8" }); // type:"text/svg;charset=utf-8"
-        saveAs(svg_text, "test.svg");
-    } catch (e){
-        console.log(e)
-        alert("Please load a CSV file.");
-    }
+
+    var svgString = getSVGString(svg_data.node());
+    var svg_text = new Blob([svgString],
+        { type: "image/svg+xml;charset=utf-8" }); // type:"text/svg;charset=utf-8"
+    saveAs(svg_text, "test.svg");
+
+    // catch (e){
+    //     console.log(e)
+    //     alert("Please load a CSV file.");
+    // }
 
 }
 
@@ -241,8 +241,8 @@ function getSVGString(svgNode){
     const xmlns = "http://www.w3.org/2000/xmlns/";
     const xlinkns = "http://www.w3.org/1999/xlink";
     const svgns = "http://www.w3.org/2000/svg";
-    var svgString = svgNode.innerHTML; // inner or outer html? svg
-
+    // var svgString = d3.select("#stringcharter").node().innerHTML; // inner or outer html? svg
+    var svgString = document.getElementById("contentDiv").innerHTML;
     //add name spaces.
     svgString = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" >" + svgString + "</svg>";
     return svgString;
