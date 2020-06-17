@@ -84,20 +84,24 @@ function drawGraph(data){
     var first_stn = timeStringToFloat(data[0][stations[0]])
     var last_stn = timeStringToFloat(data[0][stations[stations.length - 1]])
 
-    // Generate ticks labels
-    // direction of trip
-    if (first_stn>last_stn){
-        stations = stations.reverse();
-        temp = first_stn
-        first_stn = last_stn
-        last_stn = temp
-    }
+    // // Generate ticks labels
+    // // direction of trip
+    // if (first_stn>last_stn){
+    //     stations = stations.reverse();
+    //     temp = first_stn
+    //     first_stn = last_stn
+    //     last_stn = temp
+    // }
 
     var station_positions = []
     for (i=0; i<stations.length;i++){
         let stn_time = timeStringToFloat(data[0][stations[i]])
         console.log(stn_time)
-        var x_pt = ((stn_time - first_stn) / (last_stn-first_stn)) * stations.length;
+        if (data[0]['direction'] == 0){
+            var x_pt = ((stn_time - first_stn) / (last_stn-first_stn)) * stations.length;
+        }else{
+            var x_pt = ((stn_time - last_stn) / (first_stn-last_stn)) * stations.length;
+        }
         tick_positions.push(x_pt);
         station_positions.push(x_pt) //append(x position of station)
     }
@@ -130,7 +134,7 @@ function drawGraph(data){
 
     // Y scale and Axis
     var y = d3.scaleLinear()
-    .domain([0, 24])         // This is the min and the max of the data: 0 to 100 if percentages
+    .domain([0, 25])         // This is the min and the max of the data: 0 to 100 if percentages
     .range([margin.top, height-margin.bottom]);       // Reverse order since we want time to ascend
 
     var y_axis_left = d3.axisLeft().scale(y).tickFormat(function (d) {return d + ":00";});
@@ -154,13 +158,14 @@ function drawGraph(data){
     .y(function(d) { return y(d[1]); });
 
     // 9. Append the path, bind the data, and call the line generator
-    // Add condition for direction here
+    // TODO: Add condition for direction here
+    // TODO: Add some way to distinguish to and from trips
     var data_pts = []
     for (i=0; i<data.length; i++){
         trip = data[i]
         let line_pts = []
         for (j=0; j<stations.length;j++){
-            if (trip[stations[j]] != '-' && trip['direction']==1){
+            if (trip[stations[j]] != '-'){// && trip['direction']==1){
                 let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
                 console.log(point)
                 line_pts.push(point)
@@ -180,22 +185,6 @@ function drawGraph(data){
         return " "+ moment().startOf('day').add(parseFloat(num), "hours").format("HH:mm");
     }
     
-    // // draw gird lines
-    // svg.selectAll("line.horizontalGrid").data(y.ticks(4)).enter()
-    // .append("line")
-    //     .attr(
-    //     {
-    //         "class":"horizontalGrid",
-    //         "x1" : margin.right,
-    //         "x2" : width,
-    //         "y1" : function(d){ return y(d);},
-    //         "y2" : function(d){ return y(d);},
-    //         "fill" : "none",
-    //         "shape-rendering" : "crispEdges",
-    //         "stroke" : "black",
-    //         "stroke-width" : "1px"
-    //     });
-
     // dots
     var dot_size = 3.5;
     svg.selectAll(".dot")
