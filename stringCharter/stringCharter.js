@@ -1,22 +1,3 @@
-function drawLine(){
-    // draw a simple line
-    var width = 300;
-    var height = 300;
-    var svg = d3.select("#svgContainer")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
-    svg.append("line")
-        .attr("x1", 100)
-        .attr("y1", 100)
-        .attr("x2", 200)
-        .attr("y2", 200)
-        .style("stroke", "rgb(255,0,0)")
-        .style("stroke-width", 2);
-
-    return svg;
-}
-
 function tickSelector(i, labels){
     return labels[i];
 }
@@ -33,6 +14,13 @@ function changeLineColor(line_colour){
 function getLineColour(line_colour){
     this.line_colour = line_colour
 }
+var direction = "->"
+function setDirection(){
+    var e = document.getElementById("dir");
+    direction = e.options[e.selectedIndex].text;
+    console.log(direction)
+    drawGraph(csv_data)
+}
 
 function timeStringToFloat(time) {
     var hoursMinutes = time.split(/[.:]/);
@@ -47,6 +35,8 @@ function clearOldChart()
     document.getElementById("contentDiv").innerHTML = "";
 }
 
+
+
 // set the dimensions and margins of the graph
 var margin = {top: 150, right: 100, bottom: 150, left: 100}, // if margins/height/width not set correctly, export svg doesnt work well
 height = 1000
@@ -60,7 +50,7 @@ function drawGraph(data){
     // This function is called by the buttons on top of the plot
     var stations = Object.keys(data[0])
     stations.splice(0, 2) //remove trip_id and direction
-    console.log(stations)
+    // console.log(stations)
 
     var viewbox_val = "0 0 a b".replace('a', width).replace('b', height)//.replace('x', margin.left).replace('y', margin.top)
     // append the svg object to the body of the page
@@ -80,7 +70,7 @@ function drawGraph(data){
 
     var tick_positions = [];
     var dataset = [];
-    console.log(data[0][stations[0]])
+    // console.log(data[0][stations[0]])
     var first_stn = timeStringToFloat(data[0][stations[0]])
     var last_stn = timeStringToFloat(data[0][stations[stations.length - 1]])
 
@@ -96,7 +86,7 @@ function drawGraph(data){
     var station_positions = []
     for (i=0; i<stations.length;i++){
         let stn_time = timeStringToFloat(data[0][stations[i]])
-        console.log(stn_time)
+        // console.log(stn_time)
         if (data[0]['direction'] == 0){
             var x_pt = ((stn_time - first_stn) / (last_stn-first_stn)) * stations.length;
         }else{
@@ -165,7 +155,17 @@ function drawGraph(data){
         trip = data[i]
         let line_pts = []
         for (j=0; j<stations.length;j++){
-            if (trip[stations[j]] != '-'){// && trip['direction']==1){
+            if (trip[stations[j]] != '-' && trip['direction']==1 && direction=="->"){
+                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
+                console.log(point)
+                line_pts.push(point)
+                data_pts.push(point)
+            } else if(trip[stations[j]] != '-' && trip['direction']==0 && direction=="<-"){
+                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
+                console.log(point)
+                line_pts.push(point)
+                data_pts.push(point)
+            } else if(trip[stations[j]] != '-' && direction=="<->"){
                 let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
                 console.log(point)
                 line_pts.push(point)
@@ -210,7 +210,7 @@ function drawGraph(data){
     })
     .append("svg:title")
     .text(function(d) { return d[2] + floatToTime(d[1]); });
-    
+    console.log(csv_data[0])
     return svg;
 }
 
@@ -241,11 +241,13 @@ function getSVGString(svgNode){
     return svgString;
 }
 
+var csv_data;
 var openFile = function(event) {
     var input = event.target;
     console.log(input.files[0]);
 
     d3.csv(input.files[0].path).then(function(data) {
+        csv_data = data
         svg_data = drawGraph(data)
         // //GET ALL DATA FROM CSV HERE
         // console.log(data[0]);
