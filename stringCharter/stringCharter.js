@@ -47,6 +47,7 @@ function drawGraph(data){
     // This function is called by the buttons on top of the plot
     var stations = Object.keys(data[0])
     stations.splice(0, 2) //remove trip_id and direction
+    var train_name = stations.splice(0, 1) // remove train id
     // console.log(stations)
 
     var viewbox_val = "0 0 a b".replace('a', width).replace('b', height)
@@ -148,20 +149,21 @@ function drawGraph(data){
     var data_pts = []
     for (i=0; i<data.length; i++){
         trip = data[i]
+        train_id = trip['trip_short_name']
         let line_pts = []
         for (j=0; j<stations.length;j++){
             if (trip[stations[j]] != '-' && trip['direction']==1 && direction=="->"){
-                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
+                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j], train_id])
                 console.log(point)
                 line_pts.push(point)
                 data_pts.push(point)
             } else if(trip[stations[j]] != '-' && trip['direction']==0 && direction=="<-"){
-                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
+                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j], train_id])
                 console.log(point)
                 line_pts.push(point)
                 data_pts.push(point)
             } else if(trip[stations[j]] != '-' && direction=="<->"){
-                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
+                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j], train_id])
                 console.log(point)
                 line_pts.push(point)
                 data_pts.push(point)
@@ -204,7 +206,7 @@ function drawGraph(data){
                 .attr("r", dot_size);
     })
     .append("svg:title")
-    .text(function(d) { return d[2] + floatToTime(d[1]); });
+    .text(function(d) { return d[3] + ": " + d[2] + floatToTime(d[1]); });
     console.log(csv_data[0])
     return svg;
 }
