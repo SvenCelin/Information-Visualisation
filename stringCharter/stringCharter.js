@@ -1,7 +1,3 @@
-function tickSelector(i, labels){
-    return labels[i];
-}
-
 // var svg;
 function changeLineColor(line_colour){
     d3.selectAll("path")
@@ -11,9 +7,11 @@ function changeLineColor(line_colour){
     .attr("stroke", line_colour)
     .attr("fill", "none")
 }
+
 function getLineColour(line_colour){
     this.line_colour = line_colour
 }
+
 var direction = "->"
 function setDirection(){
     var e = document.getElementById("dir");
@@ -36,7 +34,6 @@ function clearOldChart()
 }
 
 
-
 // set the dimensions and margins of the graph
 var margin = {top: 150, right: 100, bottom: 150, left: 100}, // if margins/height/width not set correctly, export svg doesnt work well
 height = 1000
@@ -52,7 +49,7 @@ function drawGraph(data){
     stations.splice(0, 2) //remove trip_id and direction
     // console.log(stations)
 
-    var viewbox_val = "0 0 a b".replace('a', width).replace('b', height)//.replace('x', margin.left).replace('y', margin.top)
+    var viewbox_val = "0 0 a b".replace('a', width).replace('b', height)
     // append the svg object to the body of the page
     var svg = d3.select("#contentDiv")
     .append("svg")
@@ -102,7 +99,6 @@ function drawGraph(data){
 
     let bot_axis_transform = "translate(0, y)".replace("y", height-margin.bottom)
     svg.append('g')
-    // .attr("transform", "translate(0," + height + ")")
     .attr("transform", bot_axis_transform)
     .call(x_axis_bot)
     .selectAll("text")
@@ -148,7 +144,6 @@ function drawGraph(data){
     .y(function(d) { return y(d[1]); });
 
     // 9. Append the path, bind the data, and call the line generator
-    // TODO: Add condition for direction here
     // TODO: Add some way to distinguish to and from trips
     var data_pts = []
     for (i=0; i<data.length; i++){
