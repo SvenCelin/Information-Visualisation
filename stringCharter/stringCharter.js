@@ -125,7 +125,7 @@ function drawGraph(data) {
     // Y scale and Axis
     var y = d3.scaleLinear()
         .domain([0, 25]) 
-      //  .domain([query.timeFrom, query.timeTo+1])         // This is the min and the max of the data: 0 to 100 if percentages //TODO: CHANGED THIS FROM 0 - 24
+      //  .domain([query.timeFrom, query.timeTo+1])         // This is the min and the max of the data: 0 to 100 if percentages
         .range([0, height]);       // This is the corresponding value I want in Pixel
 
     var y_axis_left = d3.axisLeft().scale(y).tickFormat(function (d) { return d + ":00"; });
