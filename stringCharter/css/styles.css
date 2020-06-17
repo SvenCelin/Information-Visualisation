@@ -23,10 +23,9 @@ html, body {
 }
 
 #contentDiv {
-  position: relative;
-  top: 15%;
+  position: absolute;
+  top: 110px;
   width: 100%;
-  
 }
 
 #controlDiv {
