@@ -40,16 +40,31 @@ function getStationTicks(data, station_names){
     
     for (c=1; c<total_stations; c++){
         for (i=0; i<data.length; i++){
-            var first_time_time = data[i][station_names[0]];
-            if (timeStringToFloat(first_time_time)>21){ //take distance for day trains
+            var first_stn_time = data[i][station_names[0]];
+            if (timeStringToFloat(first_stn_time)>21){ //take distance from day trains, more consistent
                 continue;
             }
-            if(data[i][station_names[c]]!='-' && first_time_time!='-'){
-                first_stn = timeStringToFloat(first_time_time);
+            if(data[i][station_names[c]]!='-' && first_stn_time!='-'){
+                first_stn = timeStringToFloat(first_stn_time);
                 next_stn = timeStringToFloat(data[i][station_names[c]]);
                 distance[c] = Math.abs(first_stn-next_stn);
                 break;
             }
+        }
+    }
+
+    // for night trains (or specifically for the case of innsbruck to wien (salzburg sudbahnhof))
+    for (c=1;c<distance.length;c++){
+        if (distance[c]==0){
+            for (i=0; i<data.length; i++){
+                var first_stn_time = data[i][station_names[0]];
+                if(data[i][station_names[c]]!='-' && first_stn_time!='-'){
+                    first_stn = timeStringToFloat(first_stn_time);
+                    next_stn = timeStringToFloat(data[i][station_names[c]]);
+                    distance[c] = Math.abs(first_stn-next_stn);
+                    break;
+                }
+            } 
         }
     }
 
@@ -129,14 +144,11 @@ function drawGraph(data){
     .domain([0, stations.length])         // This is the min and the max of the data: 0 to 100 if percentages
     .range([margin.left, width-margin.right]);       // This is the corresponding value I want in Pixels
 
-    var tick_positions = [];
-    var dataset = [];
     var first_stn = timeStringToFloat(data[0][stations[0]])
     var last_stn = timeStringToFloat(data[0][stations[stations.length - 1]])
 
-    var xlabels = stations;
-    var x_axis_bot = d3.axisBottom().scale(x).tickValues(station_tick_positions).tickFormat(function (d) {return xlabels[station_tick_positions.indexOf(d)];});
-    var x_axis_top = d3.axisTop().scale(x).tickValues(station_tick_positions).tickFormat(function (d) {return xlabels[station_tick_positions.indexOf(d)];});
+    var x_axis_bot = d3.axisBottom().scale(x).tickValues(station_tick_positions).tickFormat(function (d) {return stations[station_tick_positions.indexOf(d)];});
+    var x_axis_top = d3.axisTop().scale(x).tickValues(station_tick_positions).tickFormat(function (d) {return stations[station_tick_positions.indexOf(d)];});
 
     let bot_axis_transform = "translate(0, y)".replace("y", height-margin.bottom)
     svg.append('g')
