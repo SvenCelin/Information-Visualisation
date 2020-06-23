@@ -40,18 +40,18 @@
 
         <div class="dropdown">
             <select class="dropdown-select" onchange="setDirection()" id="dir">
-                <option value="direction_0">→</option>
-                <option value="direction_1">←</option>
-				<option value="direction_both">↔</option>
+                <option value="->">→</option>
+                <option value="<-">←</option>
+				<option value="<->">↔</option>
             </select>
         </div>
         </span>
         <span class="leftOrder">
-            Time from:
+            Time:
             <input type="number" min="0" max="24" value="0" onchange="setTimeFrom(this.value)">
         </span>
-        <span class="leftOrder">
-            Time to:
+        <span class="leftOrder" style="margin-left: 0px;">
+            to
             <input type="number" min="0" max="24" value="24" onchange="setTimeTo(this.value)">
         </span>
         <span class="leftOrder">

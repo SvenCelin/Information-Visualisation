@@ -61,7 +61,7 @@ function getLineColour(line_colour){
 var direction = "->"
 function setDirection(){
     var e = document.getElementById("dir");
-    direction = e.options[e.selectedIndex].text;
+    direction = e.options[e.selectedIndex].value;
     console.log(direction)
     drawGraph(csv_data)
 }
