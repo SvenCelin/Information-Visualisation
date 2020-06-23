@@ -62,7 +62,12 @@ var direction = "->"
 function setDirection(){
     var e = document.getElementById("dir");
     direction = e.options[e.selectedIndex].value;
-    console.log(direction)
+    //console.log(direction)
+    if (direction == "<->"){
+        document.getElementById("secondColor").style.display = "";
+    } else {
+        document.getElementById("secondColor").style.display = "none";
+    }
     drawGraph(csv_data)
 }
 
