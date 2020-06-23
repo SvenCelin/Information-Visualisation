@@ -40,9 +40,9 @@
 
         <div class="dropdown">
             <select class="dropdown-select" onchange="setDirection()" id="dir">
-                <option value="direction_0">-></option>
-                <option value="direction_1"><-</option>
-				<option value="direction_both"><-></option>
+                <option value="direction_0">→</option>
+                <option value="direction_1">←</option>
+				<option value="direction_both">↔</option>
             </select>
         </div>
         </span>
@@ -59,8 +59,13 @@
             <input type="color" value="#696969" id="lc" onchange="changeLineColor(lc.value)">
         </span>
 
+        
         <button id="generateButton" onclick="saveAsSVG()">Export to SVG</button>
 
+        <div class="legend">
+            &nbsp;--- Railjets 	&nbsp;<br>
+            &nbsp;── Others
+        </div>
 
 
     </div>

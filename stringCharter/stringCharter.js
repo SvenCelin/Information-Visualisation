@@ -1,11 +1,57 @@
-// var svg;
+// function complementaryColor(color){
+//     var hex_color = parseInt(color.replace(/^#/, ''), 16);
+//     var complement = 0xffffff ^ hex_color;
+//     return "#" + complement.toString(16);
+// }
+
+// Code taken from:
+// https://stackoverflow.com/questions/35969656/how-can-i-generate-the-opposite-color-according-to-current-color
+function padZero(str, len) {
+    len = len || 2;
+    var zeros = new Array(len).join('0');
+    return (zeros + str).slice(-len);
+}
+
+function complementaryColor(hex) {
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    // convert 3-digit hex to 6-digits.
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+    }
+    // invert color components
+    var r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16),
+        g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16),
+        b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16);
+    // pad each with zeros and return
+    return '#' + padZero(r) + padZero(g) + padZero(b);
+}
+
 function changeLineColor(line_colour){
-    d3.selectAll("path")
-    .filter(function(d, i) { return i > 3; })
+    d3.selectAll("#single_dir")
+    // .filter(function(d, i) { return i > 3; })
     .transition()
     .duration(500)
     .attr("stroke", line_colour)
-    .attr("fill", "none")
+    .attr("fill", "none");
+
+    d3.selectAll("#forward_direction")
+    // .filter(function(d, i) { return i > 3; })
+    .transition()
+    .duration(500)
+    .attr("stroke", line_colour)
+    .attr("fill", "none");
+
+    d3.selectAll("#backward_direction")
+    // .filter(function(d, i) { return i > 3; })
+    .transition()
+    .duration(500)
+    .attr("stroke", complementaryColor(line_colour))
+    .attr("fill", "none");
 }
 
 function getLineColour(line_colour){
@@ -206,6 +252,8 @@ function drawGraph(data){
         trip = data[i]
         train_id = trip['trip_short_name']
         let line_pts = []
+        let forward_line_pts = []
+        let backward_line_pts = []
         var first_stn_time = timeStringToFloat(trip[stations[0]])
         var last_stn_time = timeStringToFloat(trip[stations[stations.length-1]])
         // console.log(first_stn_time)
@@ -242,8 +290,13 @@ function drawGraph(data){
                     }
 
                     let point = [station_tick_positions[j]].concat([time_as_float, stations[j], train_id])
-                    // console.log(point)
-                    line_pts.push(point)
+                    
+                    if (trip['direction']==1){
+                        backward_line_pts.push(point)
+                    }else{
+                        forward_line_pts.push(point)
+                    }
+
                     data_pts.push(point)
                 }
             }
@@ -256,12 +309,32 @@ function drawGraph(data){
         } else{
             linestyle = "";
         }
+
         if (line_pts.length!=0){
             svg.append("path")
             .attr("stroke", line_colour)
             .attr("fill", "none")
             .attr("stroke-dasharray", linestyle)
-            .attr("d", line(line_pts)); // 11. Calls the line generator 
+            .attr("d", line(line_pts))
+            .attr("id", "single_dir"); // 11. Calls the line generator 
+        }
+
+        if (forward_line_pts.length!=0){
+            svg.append("path")
+            .attr("stroke", line_colour)
+            .attr("fill", "none")
+            .attr("stroke-dasharray", linestyle)
+            .attr("d", line(forward_line_pts))
+            .attr("id", "forward_direction"); // 11. Calls the line generator 
+        }
+
+        if (backward_line_pts.length!=0){
+            svg.append("path")
+            .attr("stroke", complementaryColor(line_colour))
+            .attr("fill", "none")
+            .attr("stroke-dasharray", linestyle)
+            .attr("d", line(backward_line_pts))
+            .attr("id", "backward_direction"); // 11. Calls the line generator 
         }
     }
 
