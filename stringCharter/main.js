@@ -16,7 +16,7 @@ function createWindow() {
     win.show();
 
     // Load the index.html of the app.
-   // win.removeMenu()
+    win.removeMenu()
     win.loadFile('index.html')
 
     //win.webContents.openDevTools()
