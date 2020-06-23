@@ -31,26 +31,57 @@ function complementaryColor(hex) {
     return '#' + padZero(r) + padZero(g) + padZero(b);
 }
 
-function changeLineColor(line_colour){
-    d3.selectAll("#single_dir")
-    // .filter(function(d, i) { return i > 3; })
-    .transition()
-    .duration(500)
-    .attr("stroke", line_colour)
-    .attr("fill", "none");
+function changeLineColor(line_colour, complementary=false){
+    if (complementary==false){
+        d3.selectAll("#single_dir")
+        .transition()
+        .duration(500)
+        .attr("stroke", line_colour)
+        .attr("fill", "none");
 
-    d3.selectAll("#forward_direction")
-    // .filter(function(d, i) { return i > 3; })
-    .transition()
-    .duration(500)
-    .attr("stroke", line_colour)
-    .attr("fill", "none");
+        d3.selectAll("#forward_direction")
+        .transition()
+        .duration(500)
+        .attr("stroke", line_colour)
+        .attr("fill", "none");
+    } else{
+        document.getElementById("lc2").value = complementaryColor(line_colour);
+        console.log("hello")
+        d3.selectAll("#backward_direction")
+        .transition()
+        .duration(500)
+        .attr("stroke", complementaryColor(line_colour))
+        .attr("fill", "none");
+    }
 
+    // d3.selectAll("#single_dir")
+    // // .filter(function(d, i) { return i > 3; })
+    // .transition()
+    // .duration(500)
+    // .attr("stroke", line_colour)
+    // .attr("fill", "none");
+
+    // d3.selectAll("#forward_direction")
+    // // .filter(function(d, i) { return i > 3; })
+    // .transition()
+    // .duration(500)
+    // .attr("stroke", line_colour)
+    // .attr("fill", "none");
+
+    // d3.selectAll("#backward_direction")
+    // // .filter(function(d, i) { return i > 3; })
+    // .transition()
+    // .duration(500)
+    // .attr("stroke", complementaryColor(line_colour))
+    // .attr("fill", "none");
+    // document.getElementById("lc2").value = complementaryColor(line_colour);
+}
+
+function changeLineColor2(line_colour){
     d3.selectAll("#backward_direction")
-    // .filter(function(d, i) { return i > 3; })
     .transition()
     .duration(500)
-    .attr("stroke", complementaryColor(line_colour))
+    .attr("stroke", line_colour)
     .attr("fill", "none");
 }
 
@@ -62,6 +93,7 @@ var direction = "->"
 function setDirection(){
     var e = document.getElementById("dir");
     direction = e.options[e.selectedIndex].value;
+    
     //console.log(direction)
     if (direction == "<->"){
         document.getElementById("secondColor").style.display = "";
@@ -69,6 +101,10 @@ function setDirection(){
         document.getElementById("secondColor").style.display = "none";
     }
     drawGraph(csv_data)
+    if (direction=="<->"){
+        line_colour = document.getElementById("lc").value;
+        changeLineColor(line_colour, complementary=true)
+    }
 }
 
 function setTimeRange(){
