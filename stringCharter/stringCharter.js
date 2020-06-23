@@ -214,7 +214,7 @@ height = 1000
 width = 1000
 
 function drawGraph(data, time_from=0, time_to=0){
-    if(time_from>time_to){ return; }
+    if(parseInt(time_from)>parseInt(time_to)){ return 0; }
 
     clearOldChart()
     var line_colour = document.getElementById("lc").value
@@ -447,10 +447,9 @@ function drawGraph(data, time_from=0, time_to=0){
     return svg;
 }
 
-var svg_data;
 function saveAsSVG() {
 
-    var svgString = getSVGString(svg_data.node());
+    var svgString = getSVGString();
     var svg_text = new Blob([svgString],
         { type: "image/svg+xml;charset=utf-8" }); // type:"text/svg;charset=utf-8"
     saveAs(svg_text, "test.svg");
@@ -463,7 +462,7 @@ function saveAsSVG() {
 }
 
 // https://stackoverflow.com/questions/23218174/how-do-i-save-export-an-svg-file-after-creating-an-svg-with-d3-js-ie-safari-an
-function getSVGString(svgNode){
+function getSVGString(){
     const xmlns = "http://www.w3.org/2000/xmlns/";
     const xlinkns = "http://www.w3.org/1999/xlink";
     const svgns = "http://www.w3.org/2000/svg";
@@ -481,7 +480,7 @@ var openFile = function(event) {
 
     d3.csv(input.files[0].path).then(function(data) {
         csv_data = data
-        svg_data = drawGraph(data)
+        drawGraph(data)
         // //GET ALL DATA FROM CSV HERE
         // console.log(data[0]);
         // console.log(data[1]);
