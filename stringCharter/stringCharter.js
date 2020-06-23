@@ -302,11 +302,11 @@ function drawGraph(data, time_from=0, time_to=0){
     svg.append("defs").append("clipPath")        // attach a rectangle
     .attr("id", "clip") // clip the rectangle
     .append("rect")
-    .attr("x", margin.left)        // position the left of the rectangle
+    .attr("x", 0)        // position the left of the rectangle
     .attr("y", margin.top)         // position the top of the rectangle
     // .style("fill", "white")   // fill the clipped path with grey
     .attr("height", height-margin.top-margin.bottom)    // set the height
-    .attr("width", width-margin.left-margin.right);    // set the width
+    .attr("width", width);    // set the width
 
     // Actually plot trips
     // Draw line with d3's line generator
