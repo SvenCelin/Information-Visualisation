@@ -37,7 +37,7 @@ http://mbtaviz.github.io/trains-over-time/
 
 **Setting up node_modules and electron:**
 
-elevated CMD inside stringCharter file
+elevated CMD inside stringCharter folder
 
 npm install
 
