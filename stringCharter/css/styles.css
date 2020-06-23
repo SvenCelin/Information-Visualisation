@@ -37,13 +37,14 @@ html, body {
   padding: 5px;
   border: 1px solid black;
   background-color: #e2e2e2;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .legend{
   margin-top: 4px;
   margin-right: 10px;
   float: right;
+  background-color: whitesmoke;
 }
 
 #generateButton {
