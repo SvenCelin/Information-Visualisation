@@ -162,6 +162,8 @@ function min_max_start_time(data, station_names){
             }
         }
     }
+    console.log(min)
+    console.log(max)
     return [min, max];
 }
 
