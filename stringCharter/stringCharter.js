@@ -61,9 +61,15 @@ function getLineColour(line_colour){
 var direction = "->"
 function setDirection(){
     var e = document.getElementById("dir");
-    direction = e.options[e.selectedIndex].text;
+    direction = e.options[e.selectedIndex].value;
     console.log(direction)
     drawGraph(csv_data)
+}
+
+function setTimeRange(){
+    let tf = document.getElementById("time_from").value;
+    let tt = document.getElementById("time_to").value;
+    drawGraph(csv_data, time_from=tf, time_to=tt);
 }
 
 function timeStringToFloat(time) {
@@ -164,7 +170,9 @@ var margin = {top: 150, right: 100, bottom: 150, left: 100}, // if margins/heigh
 height = 1000
 width = 1000
 
-function drawGraph(data){
+function drawGraph(data, time_from=0, time_to=0){
+    if(time_from>time_to){ return; }
+
     clearOldChart()
     var line_colour = document.getElementById("lc").value
 
@@ -217,14 +225,22 @@ function drawGraph(data){
     .attr("transform", "rotate(90)");
 
     // Y scale and Axis
-    var min_max = min_max_start_time(data, stations)
-    var num_ticks = Math.ceil((min_max[1] - min_max[0])/2);
-    // console.log(min_max[0])
-    // console.log(min_max[1])
+    if (time_from==0 && time_to==0){
+        var min_max = min_max_start_time(data, stations)
+        time_from = min_max[0]
+        time_to = min_max[1]
+    }
+
+    if (time_to-time_from<8){ //draw more ticks if time range is small
+        var num_ticks = Math.ceil((time_to - time_from));
+    }else{
+        var num_ticks = Math.ceil((time_to - time_from)/2);
+    }
+
     var y = d3.scaleLinear()
-    .domain([min_max[0], min_max[1]])
-    // .domain([0, 25])         // This is the min and the max of the data: 0 to 100 if percentages
+    .domain([time_from, time_to])         // This is the min and the max of the data: 0 to 100 if percentages
     .range([margin.top, height-margin.bottom]);       // Reverse order since we want time to ascend
+
 
     var y_axis_left = d3.axisLeft().scale(y).tickFormat(function (d) {return (d>24 ? d-24 : d) + ":00";}).ticks(num_ticks);
     var y_axis_right = d3.axisRight().scale(y).tickFormat(function (d) {return (d>24 ? d-24 : d) + ":00";}).ticks(num_ticks);
@@ -238,6 +254,16 @@ function drawGraph(data){
     svg.append('g')
     .attr("transform", left_axis_transform)
     .call(y_axis_left);
+
+    // Clip lines outside of draw area
+    svg.append("defs").append("clipPath")        // attach a rectangle
+    .attr("id", "clip") // clip the rectangle
+    .append("rect")
+    .attr("x", margin.left)        // position the left of the rectangle
+    .attr("y", margin.top)         // position the top of the rectangle
+    // .style("fill", "white")   // fill the clipped path with grey
+    .attr("height", height-margin.top-margin.bottom)    // set the height
+    .attr("width", width-margin.left-margin.right);    // set the width
 
     // Actually plot trips
     // Draw line with d3's line generator
@@ -312,6 +338,7 @@ function drawGraph(data){
 
         if (line_pts.length!=0){
             svg.append("path")
+            .attr("clip-path", "url(#clip)")
             .attr("stroke", line_colour)
             .attr("fill", "none")
             .attr("stroke-dasharray", linestyle)
@@ -321,6 +348,7 @@ function drawGraph(data){
 
         if (forward_line_pts.length!=0){
             svg.append("path")
+            .attr("clip-path", "url(#clip)")
             .attr("stroke", line_colour)
             .attr("fill", "none")
             .attr("stroke-dasharray", linestyle)
@@ -330,6 +358,7 @@ function drawGraph(data){
 
         if (backward_line_pts.length!=0){
             svg.append("path")
+            .attr("clip-path", "url(#clip)")
             .attr("stroke", complementaryColor(line_colour))
             .attr("fill", "none")
             .attr("stroke-dasharray", linestyle)
@@ -349,6 +378,7 @@ function drawGraph(data){
     svg.selectAll(".dot")
     .data(data_pts)
     .enter().append("circle") // Uses the enter().append() method
+        .attr("clip-path", "url(#clip)")
         .attr("class", "dot") // Assign a class for styling
         .attr("fill", "black")
         .attr("cx", function(d) { return x(d[0]) })
