@@ -10,17 +10,15 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
+#This link doesnt work for OBB dataset 
+#They havent responded to our emails
+#This works with any link to any other dataset made in GTFS format
 
-link = input("Copy link to your dataset: ")
 
-print('Downloading...')
-#this link still doesnt work.... 
-#will fix when they answer my emails... 
-#can be exchanged for any other database system with this kind of shema
-#downloaddata = link
-
-#urllib.request.urlretrieve(downloaddata, 'data/zip.zip')
-print('...Finished')
+#link = input("Copy link to your dataset: ")
+#print('Downloading...')
+#urllib.request.urlretrieve(link, 'data/zip.zip')
+#print('...Finished')
 
 
 with zipfile.ZipFile("./data/OBB.zip", 'r') as zip_ref:
@@ -48,10 +46,6 @@ data.to_csv(("./all_routes.csv"), encoding='utf-8', index=False)
 
 
 ##load data and ask some questions
-
-
-
-
 data = pd.read_csv("all_routes.csv")
 def print_stop_list():
     routes_list = data.route_id.values.tolist()
@@ -71,7 +65,7 @@ def print_stop_list():
                 stop_list.append(element)
 
     #np.savetxt("./list_of_stops.csv", stop_list, delimiter=",", fmt='%s')
-    #print(stop_list)
+    print(stop_list)
 
 def making_data_for_drawing(name1, name2):
     GW = data[(data.stop_name == name1) | (data.stop_name == name2)]
@@ -198,7 +192,7 @@ def making_data_for_drawing(name1, name2):
         print(final_data)
             
     
-
+print_stop_list()
 
 station1 = input("Write start station: ")
 station2 = input("Write end station: ")
