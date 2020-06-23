@@ -399,10 +399,11 @@ function drawGraph(data, time_from=0, time_to=0){
             .attr("id", "forward_direction"); // 11. Calls the line generator 
         }
 
+        line_colour2 = document.getElementById("lc2").value;
         if (backward_line_pts.length!=0){
             svg.append("path")
             .attr("clip-path", "url(#clip)")
-            .attr("stroke", complementaryColor(line_colour))
+            .attr("stroke", (line_colour2))
             .attr("fill", "none")
             .attr("stroke-dasharray", linestyle)
             .attr("d", line(backward_line_pts))
