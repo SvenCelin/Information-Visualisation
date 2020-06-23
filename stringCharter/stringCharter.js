@@ -33,6 +33,85 @@ function clearOldChart()
     document.getElementById("contentDiv").innerHTML = "";
 }
 
+function getStationTicks(data, station_names){
+    console.log(station_names)
+    let total_stations = station_names.length;
+    let distance = Array(total_stations).fill(0);
+    
+    for (c=1; c<total_stations; c++){
+        for (i=0; i<data.length; i++){
+            var first_stn_time = data[i][station_names[0]];
+            if (timeStringToFloat(first_stn_time)>21){ //take distance from day trains, more consistent
+                continue;
+            }
+            if(data[i][station_names[c]]!='-' && first_stn_time!='-'){
+                first_stn = timeStringToFloat(first_stn_time);
+                next_stn = timeStringToFloat(data[i][station_names[c]]);
+                distance[c] = Math.abs(first_stn-next_stn);
+                break;
+            }
+        }
+    }
+
+    // for night trains (or specifically for the case of innsbruck to wien (salzburg sudbahnhof))
+    for (c=1;c<distance.length;c++){
+        if (distance[c]==0){
+            for (i=0; i<data.length; i++){
+                var first_stn_time = data[i][station_names[0]];
+                if(data[i][station_names[c]]!='-' && first_stn_time!='-'){
+                    first_stn = timeStringToFloat(first_stn_time);
+                    next_stn = timeStringToFloat(data[i][station_names[c]]);
+                    distance[c] = Math.abs(first_stn-next_stn);
+                    break;
+                }
+            } 
+        }
+    }
+
+    var station_ticks = [];
+    let last_stn = distance[distance.length-1];
+
+    for (i=0; i<distance.length;i++){
+        // console.log(stn_time)
+        var x_pt = (distance[i]/last_stn) * total_stations;
+        station_ticks.push(x_pt) //append(x position of station)
+    }
+    return station_ticks;
+}
+
+function min_max_start_time(data, station_names){
+    let min = 24;
+    let max = 0;
+    let min_station = station_names[0]
+    let max_station = station_names[station_names.length-1]
+
+    for (i=0; i<data.length; i++){
+        let direction = data[i]['direction'];
+        if (direction==0){
+            if (timeStringToFloat(data[i][min_station]) < min){
+                min = Math.floor(timeStringToFloat(data[i][min_station]));
+            }
+            if (timeStringToFloat(data[i][max_station]) > max){
+                max = Math.ceil(timeStringToFloat(data[i][max_station]));
+            }
+            if (timeStringToFloat(data[i][min_station]) >=24){
+                min = 0;
+            }
+        }
+        if (direction==1){
+            if (timeStringToFloat(data[i][max_station]) < min){
+                min = Math.floor(timeStringToFloat(data[i][max_station]));
+            }
+            if (timeStringToFloat(data[i][min_station]) > max){
+                max = Math.ceil(timeStringToFloat(data[i][min_station]));
+            }
+            if (timeStringToFloat(data[i][max_station]) >=24){
+                min = 0;
+            }
+        }
+    }
+    return [min, max];
+}
 
 // set the dimensions and margins of the graph
 var margin = {top: 150, right: 100, bottom: 150, left: 100}, // if margins/height/width not set correctly, export svg doesnt work well
@@ -46,8 +125,9 @@ function drawGraph(data){
     // var data = [{"trip_id": "14","direction": "1", "Graz Hbf": "20:33:00", "Bruck/Mur Bahnhof": "19:58:00", "Kapfenberg Bahnhof": "19:52:00", "Murzzuschlag Bahnhof": "19:30:00", "Semmering Bahnhof": "19:15:00", "Wr.Neustadt Hbf": "18:32:00", "Wien Meidling Bahnhof": "18:05:00", "Wien Hbf": "17:58:00"}]
     // This function is called by the buttons on top of the plot
     var stations = Object.keys(data[0])
-    stations.splice(0, 2) //remove trip_id and direction
-    // console.log(stations)
+    stations.splice(0, 3) //remove trip_id, direction, and train_id
+
+    var station_tick_positions = getStationTicks(data, stations);
 
     var viewbox_val = "0 0 a b".replace('a', width).replace('b', height)
     // append the svg object to the body of the page
@@ -59,43 +139,16 @@ function drawGraph(data){
     .append("g")
     .attr("id", "stringcharter");
 
-
     // X scale and Axis
     var x = d3.scaleLinear()
     .domain([0, stations.length])         // This is the min and the max of the data: 0 to 100 if percentages
     .range([margin.left, width-margin.right]);       // This is the corresponding value I want in Pixels
 
-    var tick_positions = [];
-    var dataset = [];
-    // console.log(data[0][stations[0]])
     var first_stn = timeStringToFloat(data[0][stations[0]])
     var last_stn = timeStringToFloat(data[0][stations[stations.length - 1]])
 
-    // // Generate ticks labels
-    // // direction of trip
-    // if (first_stn>last_stn){
-    //     stations = stations.reverse();
-    //     temp = first_stn
-    //     first_stn = last_stn
-    //     last_stn = temp
-    // }
-
-    var station_positions = []
-    for (i=0; i<stations.length;i++){
-        let stn_time = timeStringToFloat(data[0][stations[i]])
-        // console.log(stn_time)
-        if (data[0]['direction'] == 0){
-            var x_pt = ((stn_time - first_stn) / (last_stn-first_stn)) * stations.length;
-        }else{
-            var x_pt = ((stn_time - last_stn) / (first_stn-last_stn)) * stations.length;
-        }
-        tick_positions.push(x_pt);
-        station_positions.push(x_pt) //append(x position of station)
-    }
-
-    var xlabels = stations;
-    var x_axis_bot = d3.axisBottom().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
-    var x_axis_top = d3.axisTop().scale(x).tickValues(tick_positions).tickFormat(function (d) {return xlabels[tick_positions.indexOf(d)];});
+    var x_axis_bot = d3.axisBottom().scale(x).tickValues(station_tick_positions).tickFormat(function (d) {return stations[station_tick_positions.indexOf(d)];});
+    var x_axis_top = d3.axisTop().scale(x).tickValues(station_tick_positions).tickFormat(function (d) {return stations[station_tick_positions.indexOf(d)];});
 
     let bot_axis_transform = "translate(0, y)".replace("y", height-margin.bottom)
     svg.append('g')
@@ -105,7 +158,7 @@ function drawGraph(data){
     .style("text-anchor", "end")
     .attr("dx", "-10")
     .attr("dy", "-5")
-    .attr("transform", "rotate(-90)");;
+    .attr("transform", "rotate(-90)");
 
     let top_axis_transform = "translate(0, y)".replace("y", margin.top)
     svg.append('g')
@@ -117,22 +170,25 @@ function drawGraph(data){
     .attr("dy", "10")
     .attr("transform", "rotate(90)");
 
-
     // Y scale and Axis
+    var min_max = min_max_start_time(data, stations)
+    var num_ticks = Math.ceil((min_max[1] - min_max[0])/2);
+    // console.log(min_max[0])
+    // console.log(min_max[1])
     var y = d3.scaleLinear()
-    .domain([0, 25])         // This is the min and the max of the data: 0 to 100 if percentages
+    .domain([min_max[0], min_max[1]])
+    // .domain([0, 25])         // This is the min and the max of the data: 0 to 100 if percentages
     .range([margin.top, height-margin.bottom]);       // Reverse order since we want time to ascend
 
-    var y_axis_left = d3.axisLeft().scale(y).tickFormat(function (d) {return d + ":00";});
-    var y_axis_right = d3.axisRight().scale(y).tickFormat(function (d) {return d + ":00";});
+    var y_axis_left = d3.axisLeft().scale(y).tickFormat(function (d) {return (d>24 ? d-24 : d) + ":00";}).ticks(num_ticks);
+    var y_axis_right = d3.axisRight().scale(y).tickFormat(function (d) {return (d>24 ? d-24 : d) + ":00";}).ticks(num_ticks);
 
-    let right_axis_transform = "translate(x, 0)".replace("x", width-margin.right)
-    console.log(right_axis_transform)
+    let right_axis_transform = "translate(x, 0)".replace("x", width-margin.right);
     svg.append('g')
     .attr("transform", right_axis_transform)
     .call(y_axis_right);
 
-    let left_axis_transform = "translate(x, 0)".replace("x", margin.left)
+    let left_axis_transform = "translate(x, 0)".replace("x", margin.left);
     svg.append('g')
     .attr("transform", left_axis_transform)
     .call(y_axis_left);
@@ -148,30 +204,65 @@ function drawGraph(data){
     var data_pts = []
     for (i=0; i<data.length; i++){
         trip = data[i]
+        train_id = trip['trip_short_name']
         let line_pts = []
+        var first_stn_time = timeStringToFloat(trip[stations[0]])
+        var last_stn_time = timeStringToFloat(trip[stations[stations.length-1]])
+        // console.log(first_stn_time)
+        // console.log(last_stn_time)
+
         for (j=0; j<stations.length;j++){
-            if (trip[stations[j]] != '-' && trip['direction']==1 && direction=="->"){
-                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
-                console.log(point)
-                line_pts.push(point)
-                data_pts.push(point)
-            } else if(trip[stations[j]] != '-' && trip['direction']==0 && direction=="<-"){
-                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
-                console.log(point)
-                line_pts.push(point)
-                data_pts.push(point)
-            } else if(trip[stations[j]] != '-' && direction=="<->"){
-                let point = [station_positions[j]].concat([timeStringToFloat(trip[stations[j]]), stations[j]])
-                console.log(point)
-                line_pts.push(point)
-                data_pts.push(point)
+            if (trip[stations[j]] != '-'){
+                let time_as_float = timeStringToFloat(trip[stations[j]]);
+                // if (time_as_float>=24){
+                //     time_as_float-=24
+                // }
+
+                if(trip['direction']==1 && direction=="<-"){
+                    if (last_stn_time>=24){ //wrap round trips that start after midnight and have format>2400 e.g. 2450
+                        time_as_float=time_as_float - 24
+                    }
+                    let point = [station_tick_positions[j]].concat([time_as_float, stations[j], train_id])
+                    // console.log(point)
+                    line_pts.push(point)
+                    data_pts.push(point)
+                } else if(trip['direction']==0 && direction=="->"){
+                    if (first_stn_time>=24){
+                        time_as_float=time_as_float - 24
+                    }
+                    let point = [station_tick_positions[j]].concat([time_as_float, stations[j], train_id])
+                    // console.log(point)
+                    line_pts.push(point)
+                    data_pts.push(point)
+                } else if(direction=="<->"){
+                    if (trip['direction']==0 && first_stn_time>=24){
+                        time_as_float=time_as_float - 24
+                    } else if (trip['direction']==1 && last_stn_time>=24){
+                        time_as_float=time_as_float - 24
+                    }
+
+                    let point = [station_tick_positions[j]].concat([time_as_float, stations[j], train_id])
+                    // console.log(point)
+                    line_pts.push(point)
+                    data_pts.push(point)
+                }
             }
         }
 
-        svg.append("path")
-        .attr("stroke", line_colour)
-        .attr("fill", "none")
-        .attr("d", line(line_pts)); // 11. Calls the line generator 
+        var linestyle;
+        //highlight railjet trains
+        if (train_id.substring(0, 2)=="RJ"){
+             linestyle ="5,5";
+        } else{
+            linestyle = "";
+        }
+        if (line_pts.length!=0){
+            svg.append("path")
+            .attr("stroke", line_colour)
+            .attr("fill", "none")
+            .attr("stroke-dasharray", linestyle)
+            .attr("d", line(line_pts)); // 11. Calls the line generator 
+        }
     }
 
     function floatToTime(num){
@@ -204,7 +295,7 @@ function drawGraph(data){
                 .attr("r", dot_size);
     })
     .append("svg:title")
-    .text(function(d) { return d[2] + floatToTime(d[1]); });
+    .text(function(d) { return d[3] + ": " + d[2] + floatToTime(d[1]); });
     console.log(csv_data[0])
     return svg;
 }
