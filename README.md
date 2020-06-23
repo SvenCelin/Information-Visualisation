@@ -15,7 +15,13 @@ Used for loading data from GTFS format zip file or link to it, merging and clean
 
 ## 2. Frontend
 
-
+1. Open ...
+2. Import CSV you have made in python script
+3. When graph is drawn you have numerous filter options
+3.1. Filter by direction - you can choose just one (eather way) or both direction
+3.2. Filter by time - you can specify time range that you want to be shown
+3.3. Color change - you can change the colors of the graph
+4. On "Save to SVG" button you can save drawn image localy for further use
 
 
 # Information-Visualisation - remove after use
