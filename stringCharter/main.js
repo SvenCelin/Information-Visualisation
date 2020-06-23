@@ -12,14 +12,14 @@ function createWindow() {
         }
     })
 
-    win.maximize();
+    //win.maximize();
     win.show();
 
     // Load the index.html of the app.
    // win.removeMenu()
     win.loadFile('index.html')
 
-    win.webContents.openDevTools()
+    //win.webContents.openDevTools()
 }
 
 app.whenReady().then(createWindow)
