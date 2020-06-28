@@ -23,6 +23,20 @@ Used for loading data from GTFS format zip file or link to it, merging and clean
 3.3. Color change - you can change the colors of the graph
 4. On "Save to SVG" button you can save drawn image localy for further use
 
+## Setting up node_modules and electron:
+
+With elevated CMD inside stringCharter folder
+
+1. npm install
+
+2. npm rebuild
+
+3. npm start (if error: npm install --save-dev electron)
+   
+4. npm install electron-packager -g
+
+5. electron-packager .
+
 
 # Information-Visualisation - remove after use
 
@@ -34,19 +48,3 @@ http://igncp-demos.herokuapp.com/d3js/mareys-schedule
 
 http://mbtaviz.github.io/trains-over-time/
 
-
-**Setting up node_modules and electron:**
-
-elevated CMD inside stringCharter folder
-
-npm install
-
-npm rebuild
-
-npm start
-
-    (if error: npm install --save-dev electron)
-   
-npm install electron-packager -g
-
-electron-packager .
